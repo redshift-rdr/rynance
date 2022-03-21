@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    <h5>rynance</h5>
+
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.name.label }}<br>
+            {{ form.name(size=32) }}
+        </p>
+        <p>
+            {{ form.description.label }}<br>
+            {{ form.description(size=32) }}
+        </p>
+        <p>
+            {{ form.amount.label }}<br>
+            {{ form.amount() }}
+        </p>
+        <p>
+            {{ form.repeat_dom.label }}<br>
+            {{ form.repeat_dom() }}
+        </p>
+        <p>
+            {{ form.repeat_end.label }}<br>
+            {{ form.repeat_end() }}
+        </p>
+        <p>{{ form.recurring() }} {{ form.recurring.label }}</p>
+        <p>{{ form.submit() }}</p>
+    </form>
+</div>
+  
+
+{% endblock %}
