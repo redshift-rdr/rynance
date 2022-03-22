@@ -1,6 +1,14 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, BooleanField, SubmitField, IntegerField, DateField
+from wtforms import StringField, BooleanField, SubmitField, IntegerField, DateField, HiddenField
 from wtforms.validators import DataRequired
+
+class AddAccount(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    submit = SubmitField('Add')
+
+class ChooseAccount(FlaskForm):
+    accountid = HiddenField('accountid')
+    submit = SubmitField('Choose')
 
 class AddItemForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    <h5>rynance</h5>
+
+    <form action="" method="post" novalidate>
+        <ul>
+        {% for account in accounts %}
+            <li>{{form.accountid()}}{{account.name}} - {{form.submit()}}</li>
+        {% endfor %}
+        </ul>
+    </form>
+
+</div>
+  
+
+{% endblock %}
