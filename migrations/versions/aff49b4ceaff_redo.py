@@ -1,8 +1,8 @@
-"""first
+"""redo
 
-Revision ID: 805df1153c9d
+Revision ID: aff49b4ceaff
 Revises: 
-Create Date: 2022-03-22 21:23:54.653869
+Create Date: 2022-03-25 21:39:24.922337
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '805df1153c9d'
+revision = 'aff49b4ceaff'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -29,7 +29,6 @@ def upgrade():
     sa.Column('amount', sa.Integer(), nullable=True),
     sa.Column('recurring', sa.Boolean(), nullable=True),
     sa.Column('repeat_dom', sa.Integer(), nullable=True),
-    sa.Column('repeat_end', sa.Date(), nullable=True),
     sa.Column('name', sa.String(length=64), nullable=True),
     sa.Column('description', sa.String(length=512), nullable=True),
     sa.Column('account_id', sa.Integer(), nullable=True),

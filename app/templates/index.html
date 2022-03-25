@@ -7,11 +7,10 @@
 
     <table class="table table-striped">
         <tr><th>Name</th><th>Amount</th><th>dom</th></tr>
-        {% for item in items %}
-            <tr><td><a title="{{ item.description }}">{{ item.name }}</a></td><td>{{ item.amount }}</td><td>{{ item.repeat_dom }}</td></tr>
+        {% for transaction in ledger.entries %}
+            <tr><td><a title="{{ transaction.item.description }}">{{ transaction.item.name }}</a></td><td>{{ transaction.item.amount }}</td><td>{{ transaction.item.repeat_dom }}</td></tr>
         {% endfor %}
-        
-        
+        total: {{ totals['total'] }}
     </table>
 </div>
   

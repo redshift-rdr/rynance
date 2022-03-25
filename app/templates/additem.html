@@ -10,24 +10,37 @@
         <p>
             {{ form.name.label }}<br>
             {{ form.name(size=64) }}
+            {% for error in form.name.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
         </p>
         <p>
             {{ form.description.label }}<br>
             {{ form.description(size=32) }}
+            {% for error in form.description.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
         </p>
         <p>
             {{ form.amount.label }}<br>
             {{ form.amount() }}
+            {% for error in form.amount.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
         </p>
         <p>
             {{ form.repeat_dom.label }}<br>
             {{ form.repeat_dom() }}
+            {% for error in form.repeat_dom.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
         </p>
         <p>
-            {{ form.repeat_end.label }}<br>
-            {{ form.repeat_end() }}
+            {{ form.recurring() }} {{ form.recurring.label }}
+            {% for error in form.recurring.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
         </p>
-        <p>{{ form.recurring() }} {{ form.recurring.label }}</p>
         <p>{{ form.submit() }}</p>
     </form>
 </div>

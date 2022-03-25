@@ -8,7 +8,7 @@
     <form action="" method="post" novalidate>
         <ul>
         {% for account in accounts %}
-            <li>{{form.accountid()}}{{account.name}} - {{form.submit()}}</li>
+            <li><a href="{{ url_for('chooseaccount') }}?account={{ account.id }}">{{ account.name }}</a></li>
         {% endfor %}
         </ul>
     </form>

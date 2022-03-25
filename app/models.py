@@ -13,9 +13,8 @@ class Account(db.Model):
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     amount = db.Column(db.Integer)
-    recurring = db.Column(db.Boolean)
+    recurring = db.Column(db.Boolean, default=False)
     repeat_dom = db.Column(db.Integer)
-    repeat_end = db.Column(db.Date)
     name = db.Column(db.String(64), index=True, unique=True)
     description = db.Column(db.String(512))
     account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
