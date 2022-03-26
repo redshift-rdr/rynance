@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    <h5>rynance - Items</h5>
+
+    <table class="table table-striped">
+        <tr><th>Name</th><th>Description</th><th>Amount</th><th>DOM</th><th>Recurring</th></tr>
+        {% for item in items %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.description }}</td>
+                <td>{{ item.amount }}</td>
+                <td>{{ item.repeat_dom }}</td>
+                <td>{{ item.recurring }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+  
+
+{% endblock %}

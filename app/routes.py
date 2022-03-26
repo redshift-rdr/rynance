@@ -24,6 +24,37 @@ def index():
 
     return render_template('index.html', title='Home', ledger=thismonth, totals=totals)
 
+@app.route('/items', methods=['GET', 'POST'])
+def items():
+    items = Item.query.all()
+    return render_template('items.html', items=items)
+
+@app.route('/edititem', methods=['GET', 'POST'])
+def edititem():
+    item_id = request.args.get('item_id')
+    item = Item.query.get(item_id)
+    form = AddItemForm(obj=item)
+
+    if request.method == 'POST':
+        if form.id.data and Item.query.get(form.id.data):
+            item = Item.query.get(form.id.data)
+            item.name = form.name.data
+            item.description = form.description.data
+            item.amount = form.amount.data
+            item.recurring = form.recurring.data
+            item.repeat_dom = form.repeat_dom.data
+
+            db.session.add(item)
+            db.session.commit()
+
+            flash('edit successful') 
+            return redirect(url_for('index'))
+
+        flash('edit failed')
+    
+    return render_template('edititem.html', item=item, form=form)
+
+
 @app.route('/additem', methods=['GET', 'POST'])
 def additem():
     form = AddItemForm()

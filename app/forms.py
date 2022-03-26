@@ -7,9 +7,10 @@ class AddAccount(FlaskForm):
     submit = SubmitField('Add')
 
 class AddItemForm(FlaskForm):
+    id = HiddenField('id')
     name = StringField('Name', validators=[DataRequired()])
     description = StringField('Description')
     amount = IntegerField('Amount', validators=[DataRequired()])
     recurring = BooleanField('Recurring')
     repeat_dom = IntegerField('Repeat DOM')
-    submit = SubmitField('Add')
+    submit = SubmitField('Submit')
