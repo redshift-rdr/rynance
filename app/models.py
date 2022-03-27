@@ -1,8 +1,14 @@
 from app import db
 from datetime import datetime
+from sqlalchemy.orm import backref
+import uuid
+
+def generate_uuid():
+    return str(uuid.uuid4())
 
 class Account(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    uuid = db.Column(db.String(36), index=True, unique=True, default=generate_uuid)
     name = db.Column(db.String(32), index=True)
     items = db.relationship('Item', backref='account', lazy='dynamic')
     ledgers = db.relationship('Ledger', backref='account', lazy='dynamic')
@@ -12,18 +18,24 @@ class Account(db.Model):
 
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    uuid = db.Column(db.String(36), index=True, unique=True, default=generate_uuid)
     amount = db.Column(db.Integer)
     recurring = db.Column(db.Boolean, default=False)
     repeat_dom = db.Column(db.Integer)
     name = db.Column(db.String(64), index=True, unique=True)
     description = db.Column(db.String(512))
     account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
+    end_month = db.Column(db.Date, index=True)
+    active = db.Column(db.Boolean, default=True)
 
     def __repr__(self):
         return f'Item<{self.name}>'
 
 class LedgerEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), index=True)
+    description = db.Column(db.String(512))
+    amount = db.Column(db.Integer)
     item_id = db.Column(db.Integer, db.ForeignKey('item.id'))
     item = db.relationship("Item")
 

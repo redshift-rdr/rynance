@@ -3,45 +3,80 @@
 {% block content %}
 
 <div class="container">
-    <h5>rynance - add item</h5>
+    <h5 class="mb-2">add item</h5>
 
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
-        <p>
-            {{ form.name.label }}<br>
-            {{ form.name(size=64) }}
-            {% for error in form.name.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.description.label }}<br>
-            {{ form.description(size=32) }}
-            {% for error in form.description.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.amount.label }}<br>
-            {{ form.amount() }}
-            {% for error in form.amount.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.repeat_dom.label }}<br>
-            {{ form.repeat_dom() }}
-            {% for error in form.repeat_dom.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.recurring() }} {{ form.recurring.label }}
-            {% for error in form.recurring.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>{{ form.submit() }}</p>
+
+        <div class="row mb-2">
+            <div class="col-4">
+                {{ form.name.label(class_='form-label') }}
+            </div>
+            <div class="col-8">
+                {{ form.name(size=64, class_='form-control') }}
+                {% for error in form.name.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-4">
+                {{ form.description.label(class_='form-label') }}
+            </div>
+            <div class="col-8">
+                {{ form.description(size=32, class_='form-control') }}
+                {% for error in form.description.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-4">
+                {{ form.amount.label(class_='form-label') }}
+            </div>
+            <div class="col-8">
+                {{ form.amount(class_='form-control') }}
+                {% for error in form.amount.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-4">
+                {{ form.repeat_dom.label(class_='form-label') }}
+            </div>
+            <div class="col-8">
+                {{ form.repeat_dom(class_='form-control') }}
+                {% for error in form.repeat_dom.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-4">
+                {{ form.end_month.label(class_='form-label') }}
+            </div>
+            <div class="col-8">
+                {{ form.end_month(class_='form-control') }}
+                {% for error in form.end_month().errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-4">
+                {{ form.recurring.label(class_='form-label') }}
+            </div>
+            <div class="col-8">
+                {{ form.recurring(class_='form-check-input') }} 
+                {% for error in form.recurring.errors %}
+                    <span style="color: red;"><br>[{{ error }}]</span>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="row mb-2">
+            {{ form.submit(class_='btn btn-primary') }}
+        </div>
     </form>
 </div>
   

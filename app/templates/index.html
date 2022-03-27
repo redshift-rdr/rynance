@@ -3,14 +3,18 @@
 {% block content %}
 
 <div class="container">
-    <h5>rynance</h5>
+    
+    <ul class="list-group list-group-horizontal mb-2">
+        <li class="list-group-item text-success">disposable income: {{ totals['disposable'] }}</li>
+        <li class="list-group-item text-success">income: {{ totals['income'] }}</li>
+        <li class="list-group-item text-danger">expenses: {{ totals['expenses'] }}</li>
+    </ul>
 
     <table class="table table-striped">
-        <tr><th>Name</th><th>Amount</th><th>dom</th></tr>
+        <tr><th>Name</th><th>Amount</th><th>Day</th></tr>
         {% for transaction in ledger.entries %}
-            <tr><td><a title="{{ transaction.item.description }}">{{ transaction.item.name }}</a></td><td>{{ transaction.item.amount }}</td><td>{{ transaction.item.repeat_dom }}</td></tr>
+            <tr><td><a title="{{ transaction.description }}">{{ transaction.name }}</a></td><td>{{ transaction.amount }}</td><td>{{ transaction.item.repeat_dom }}</td></tr>
         {% endfor %}
-        total: {{ totals['total'] }}
     </table>
 </div>
   

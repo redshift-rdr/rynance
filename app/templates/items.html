@@ -9,7 +9,7 @@
         <tr><th>Name</th><th>Description</th><th>Amount</th><th>DOM</th><th>Recurring</th></tr>
         {% for item in items %}
             <tr>
-                <td>{{ item.name }}</td>
+                <td><a href="{{ url_for('edititem') }}?item_id={{ item.uuid }}">{{ item.name }}</a></td>
                 <td>{{ item.description }}</td>
                 <td>{{ item.amount }}</td>
                 <td>{{ item.repeat_dom }}</td>
@@ -17,6 +17,7 @@
             </tr>
         {% endfor %}
     </table>
+    <a class="btn btn-success" href="{{ url_for('additem') }}">Add Item</a>
 </div>
   
 

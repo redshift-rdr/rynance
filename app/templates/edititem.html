@@ -5,6 +5,8 @@
 <div class="container">
     <h5>rynance - edit item</h5>
 
+    <a href="{{ url_for('items') }}">< Back</a>
+
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
         <p>
@@ -22,7 +24,7 @@
             {% endfor %}
         </p>
         <p>
-            {{ form.amount.label }}<br>
+            {{ form.amount.label }} - <span class="text-muted">Make it negative for expenses</span><br>
             {{ form.amount() }}
             {% for error in form.amount.errors %}
                 <span style="color: red;">[{{ error }}]</span>
@@ -41,7 +43,7 @@
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
-        <p>{{ form.submit() }}</p>
+        <p>{{ form.submit() }} <a class="btn btn-danger" href="{{ url_for('deleteitem') }}?item_id={{ form.uuid.data }}">Delete</a></p>
     </form>
 </div>
   

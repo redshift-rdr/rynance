@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, request, url_for, session
+from flask import render_template, flash, redirect, request, url_for, session, make_response
 from app import app, db
 from app.models import Item, Account, Ledger, LedgerEntry
 from app.forms import AddItemForm, AddAccount
@@ -8,6 +8,9 @@ from datetime import datetime
 @app.route('/')
 @app.route('/index')
 def index():
+    if request.cookies.get('account_id'):
+        session['account_id'] = request.cookies.get('account_id')
+
     if not 'account_id' in session:
         accounts = Account.query.all()
 
@@ -20,24 +23,28 @@ def index():
     thismonth = get_current_month()
 
     # calculate totals
-    totals = {'total': sum([t.item.amount for t in thismonth.entries])}
+    totals = {
+        'disposable': sum([t.amount for t in thismonth.entries]),
+        'income': sum([t.amount if (t.amount > 0) else 0 for t in thismonth.entries]),
+        'expenses': sum([t.amount if (t.amount < 0) else 0 for t in thismonth.entries])
+        }
 
     return render_template('index.html', title='Home', ledger=thismonth, totals=totals)
 
 @app.route('/items', methods=['GET', 'POST'])
 def items():
-    items = Item.query.all()
+    items = db.session.query(Item).filter_by(active=True).all()
     return render_template('items.html', items=items)
 
 @app.route('/edititem', methods=['GET', 'POST'])
 def edititem():
     item_id = request.args.get('item_id')
-    item = Item.query.get(item_id)
+    item = db.session.query(Item).filter_by(uuid=item_id).first()
     form = AddItemForm(obj=item)
 
     if request.method == 'POST':
-        if form.id.data and Item.query.get(form.id.data):
-            item = Item.query.get(form.id.data)
+        if form.uuid.data and db.session.query(Item).filter_by(uuid=form.uuid.data).first(): 
+            item = db.session.query(Item).filter_by(uuid=form.uuid.data).first()
             item.name = form.name.data
             item.description = form.description.data
             item.amount = form.amount.data
@@ -48,7 +55,7 @@ def edititem():
             db.session.commit()
 
             flash('edit successful') 
-            return redirect(url_for('index'))
+            return redirect(url_for('edititem'))
 
         flash('edit failed')
     
@@ -67,10 +74,11 @@ def additem():
                     repeat_dom=form.repeat_dom.data,
                     account=Account.query.get(session['account_id']))
 
+        item.active = item.recurring
         db.session.add(item)
 
         thismonth = get_current_month()
-        entry = LedgerEntry(ledger=thismonth, item=item)
+        entry = LedgerEntry(ledger=thismonth, item=item, name=item.name, amount=item.amount, description=item.description)
 
         db.session.add(entry)
         db.session.commit()
@@ -78,13 +86,29 @@ def additem():
 
     return render_template('additem.html', title='Add item', form=form)
 
+@app.route('/deleteitem')
+def deleteitem():
+    item_id = request.args.get('item_id')
+
+    if item_id and db.session.query(Item).filter_by(uuid=item_id):
+        item = db.session.query(Item).filter_by(uuid=item_id).first()
+        item.active = False
+        db.session.add(item)
+        db.session.commit()
+
+        flash('item deleted')
+    else:
+        flash('item_id not provided or invalid')
+
+    return redirect(url_for('items'))
+
 @app.route('/addaccount', methods=['GET', 'POST'])
 def addaccount():
     form = AddAccount()
 
     if form.validate_on_submit():
         account = Account(name=form.name.data)
-        session['account_id'] = account.id
+        session['account_id'] = account.uuid
         db.session.add(account)
         db.session.commit()
         return redirect(url_for('index'))
@@ -94,16 +118,18 @@ def addaccount():
 @app.route('/chooseaccount', methods=['GET'])
 def chooseaccount():
     accounts = Account.query.all()
-    account_id = request.args.get('account')
+    account_id = request.args.get('account_id')
 
-    if Account.query.get(account_id):
+    if db.session.query(Account).filter_by(uuid=account_id).first():
         session['account_id'] = account_id
-        return redirect(url_for('index'))
+        resp = make_response(redirect(url_for('index')))
+        resp.set_cookie('account_id', account_id)
+        return resp
 
     return render_template('chooseaccount.html', title='Choose account', accounts=accounts)
 
 def addmonth(account_id : int, month : datetime) -> None:
-    month = Ledger(month=month, account=Account.query.get(account_id))
+    month = Ledger(month=month, account=db.session.query(Account).filter_by(uuid=account_id).first())
     db.session.add(month)
 
     recurring = db.session.query(Item).filter(Item.recurring == True).all()
