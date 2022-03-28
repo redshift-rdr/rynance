@@ -3,7 +3,7 @@ from app import app, db
 from app.models import Item, Account, Ledger, LedgerEntry
 from app.forms import AddItemForm, AddAccount
 from sqlalchemy import extract
-from datetime import datetime
+from datetime import datetime, timedelta
 
 @app.route('/')
 @app.route('/index')
@@ -23,11 +23,11 @@ def index():
     thismonth = get_current_month()
 
     # calculate totals
-    totals = {
-        'disposable': sum([t.amount for t in thismonth.entries]),
-        'income': sum([t.amount if (t.amount > 0) else 0 for t in thismonth.entries]),
-        'expenses': sum([t.amount if (t.amount < 0) else 0 for t in thismonth.entries])
-        }
+    totals = {}
+    if thismonth:
+        totals['disposable'] = sum([t.amount for t in thismonth.entries]),
+        totals['income'] = sum([t.amount if (t.amount > 0) else 0 for t in thismonth.entries]),
+        totals['expenses'] = sum([t.amount if (t.amount < 0) else 0 for t in thismonth.entries])
 
     return render_template('index.html', title='Home', ledger=thismonth, totals=totals)
 
@@ -61,7 +61,6 @@ def edititem():
     
     return render_template('edititem.html', item=item, form=form)
 
-
 @app.route('/additem', methods=['GET', 'POST'])
 def additem():
     form = AddItemForm()
@@ -72,15 +71,16 @@ def additem():
                     amount=form.amount.data, 
                     recurring=form.recurring.data, 
                     repeat_dom=form.repeat_dom.data,
-                    account=Account.query.get(session['account_id']))
+                    account=db.session.query(Account).filter_by(uuid=session['account_id']).first())
 
         item.active = item.recurring
         db.session.add(item)
 
         thismonth = get_current_month()
-        entry = LedgerEntry(ledger=thismonth, item=item, name=item.name, amount=item.amount, description=item.description)
+        if item.month == datetime.utcnow().month:
+            entry = LedgerEntry(ledger=thismonth, item=item, name=item.name, amount=item.amount, description=item.description)
+            db.session.add(entry)
 
-        db.session.add(entry)
         db.session.commit()
         return redirect(url_for('index'))
 
@@ -123,22 +123,38 @@ def chooseaccount():
     if db.session.query(Account).filter_by(uuid=account_id).first():
         session['account_id'] = account_id
         resp = make_response(redirect(url_for('index')))
-        resp.set_cookie('account_id', account_id)
+        resp.set_cookie('account_id', account_id, expires=datetime.now() + timedelta(days=30))
         return resp
 
     return render_template('chooseaccount.html', title='Choose account', accounts=accounts)
 
-def addmonth(account_id : int, month : datetime) -> None:
+def addmonth(account_id : int, month : datetime) -> Ledger:
     month = Ledger(month=month, account=db.session.query(Account).filter_by(uuid=account_id).first())
     db.session.add(month)
 
-    recurring = db.session.query(Item).filter(Item.recurring == True).all()
+    recurring = db.session.query(Item).filter(Item.recurring == True).filter_by(type=1).all()
     for item in recurring:
         entry = LedgerEntry(item=item, ledger=month)
         db.session.add(entry)
 
-    db.session.commit()
-
-def get_current_month():
     m, y = (datetime.utcnow().month, datetime.utcnow().year)
-    return db.session.query(Ledger).filter(extract('year', Ledger.month)==y).filter(extract('month', Ledger.month)==m).all()[0]
+    irregulars = db.session.query(Item).filter(extract('month', Item.month)==m).filter_by(type=2).all()
+    for irrItem in irregulars:
+        entry = LedgerEntry(item=irrItem, ledger=month)
+        db.session.add(entry)
+
+        if irrItem.period:
+            irrItem._update_month()
+            db.session.add(irrItem)
+
+    db.session.commit()
+    return month
+
+def get_current_month() -> Ledger:
+    m, y = (datetime.utcnow().month, datetime.utcnow().year)
+    thisMonthLedger = db.session.query(Ledger).filter(extract('year', Ledger.month)==y).filter(extract('month', Ledger.month)==m).first()
+
+    if not thisMonthLedger:
+        thisMonthLedger = addmonth(session['account_id'], datetime.utcnow())
+
+    return thisMonthLedger

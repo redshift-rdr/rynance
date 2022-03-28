@@ -1,5 +1,5 @@
 from app import db
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy.orm import backref
 import uuid
 
@@ -27,9 +27,15 @@ class Item(db.Model):
     account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
     end_month = db.Column(db.Date, index=True)
     active = db.Column(db.Boolean, default=True)
+    type = db.Column(db.Integer)
+    period = db.Column(db.Float)
+    month = db.Column(db.Date)
 
     def __repr__(self):
         return f'Item<{self.name}>'
+
+    def _update_month(self):
+        self.month = self.month + timedelta(days=(self.period*30))
 
 class LedgerEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
