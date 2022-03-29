@@ -1,8 +1,8 @@
 """first
 
-Revision ID: f0f500b85f11
+Revision ID: 55c599116c28
 Revises: 
-Create Date: 2022-03-28 21:22:22.126304
+Create Date: 2022-03-29 20:05:59.556207
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f0f500b85f11'
+revision = '55c599116c28'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -44,7 +44,7 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_item_end_month'), 'item', ['end_month'], unique=False)
-    op.create_index(op.f('ix_item_name'), 'item', ['name'], unique=True)
+    op.create_index(op.f('ix_item_name'), 'item', ['name'], unique=False)
     op.create_index(op.f('ix_item_uuid'), 'item', ['uuid'], unique=True)
     op.create_table('ledger',
     sa.Column('id', sa.Integer(), nullable=False),

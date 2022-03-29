@@ -1,5 +1,6 @@
 from app import db
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 from sqlalchemy.orm import backref
 import uuid
 
@@ -22,7 +23,7 @@ class Item(db.Model):
     amount = db.Column(db.Integer)
     recurring = db.Column(db.Boolean, default=False)
     repeat_dom = db.Column(db.Integer)
-    name = db.Column(db.String(64), index=True, unique=True)
+    name = db.Column(db.String(64), index=True)
     description = db.Column(db.String(512))
     account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
     end_month = db.Column(db.Date, index=True)
@@ -35,7 +36,7 @@ class Item(db.Model):
         return f'Item<{self.name}>'
 
     def _update_month(self):
-        self.month = self.month + timedelta(days=(self.period*30))
+        self.month += relativedelta(months=self.period)
 
 class LedgerEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)

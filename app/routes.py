@@ -71,15 +71,22 @@ def additem():
                     amount=form.amount.data, 
                     recurring=form.recurring.data, 
                     repeat_dom=form.repeat_dom.data,
+                    type=int(form.type.data),
+                    period=form.period.data,
+                    month=form.period.data,
                     account=db.session.query(Account).filter_by(uuid=session['account_id']).first())
 
         item.active = item.recurring
         db.session.add(item)
 
         thismonth = get_current_month()
-        if item.month == datetime.utcnow().month:
+        if item.type == 1:
             entry = LedgerEntry(ledger=thismonth, item=item, name=item.name, amount=item.amount, description=item.description)
             db.session.add(entry)
+        if item.type == 2 and (item.month == datetime.utcnow().month):
+            entry = LedgerEntry(ledger=thismonth, item=item, name=item.name, amount=item.amount, description=item.description)
+            db.session.add(entry)
+        
 
         db.session.commit()
         return redirect(url_for('index'))
@@ -129,18 +136,18 @@ def chooseaccount():
     return render_template('chooseaccount.html', title='Choose account', accounts=accounts)
 
 def addmonth(account_id : int, month : datetime) -> Ledger:
-    month = Ledger(month=month, account=db.session.query(Account).filter_by(uuid=account_id).first())
-    db.session.add(month)
+    ledger = Ledger(month=month, account=db.session.query(Account).filter_by(uuid=account_id).first())
+    db.session.add(ledger)
 
     recurring = db.session.query(Item).filter(Item.recurring == True).filter_by(type=1).all()
     for item in recurring:
-        entry = LedgerEntry(item=item, ledger=month)
+        entry = LedgerEntry(item=item, ledger=ledger)
         db.session.add(entry)
 
-    m, y = (datetime.utcnow().month, datetime.utcnow().year)
+    m, y = (month.month, month.year)
     irregulars = db.session.query(Item).filter(extract('month', Item.month)==m).filter_by(type=2).all()
     for irrItem in irregulars:
-        entry = LedgerEntry(item=irrItem, ledger=month)
+        entry = LedgerEntry(item=irrItem, ledger=ledger)
         db.session.add(entry)
 
         if irrItem.period:
@@ -148,13 +155,17 @@ def addmonth(account_id : int, month : datetime) -> Ledger:
             db.session.add(irrItem)
 
     db.session.commit()
-    return month
+    return ledger
 
 def get_current_month() -> Ledger:
-    m, y = (datetime.utcnow().month, datetime.utcnow().year)
-    thisMonthLedger = db.session.query(Ledger).filter(extract('year', Ledger.month)==y).filter(extract('month', Ledger.month)==m).first()
+    return get_month(datetime.utcnow())
 
-    if not thisMonthLedger:
-        thisMonthLedger = addmonth(session['account_id'], datetime.utcnow())
+def get_month(month : datetime) -> Ledger:
+    m, y = (month.month, month.year)
 
-    return thisMonthLedger
+    ledger = db.session.query(Ledger).filter(extract('year', Ledger.month)==y).filter(extract('month', Ledger.month)==m).first()
+
+    if not ledger:
+        ledger = addmonth(session['account_id'], month)
+
+    return ledger
