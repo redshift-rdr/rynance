@@ -1,11 +1,16 @@
 from flask import render_template, flash, redirect, request, url_for, session, make_response
 from app import app, db
-from app.models import Item, Account, Ledger, LedgerEntry
+from app.models import Profile, RecurringRecord, Ledger, Record
 from app.forms import AddItemForm, AddAccount
 from sqlalchemy import extract
 from datetime import datetime, timedelta
 
 @app.route('/')
+@app.route('/index')
+def index():
+    return 'hello world'
+
+"""@app.route('/')
 @app.route('/index')
 def index():
     if request.cookies.get('account_id'):
@@ -169,3 +174,4 @@ def get_month(month : datetime) -> Ledger:
         ledger = addmonth(session['account_id'], month)
 
     return ledger
+"""

@@ -1,6 +1,6 @@
 from app import app, db
-from app.models import Item, Account, Ledger, LedgerEntry
+from app.models import Profile, RecurringRecord, Ledger, Record
 
 @app.shell_context_processor
 def make_shell_context():
-    return {'db': db, 'Item': Item, 'Account': Account, 'Ledger': Ledger, 'LedgerEntry': LedgerEntry}
+    return {'db': db, 'Profile': Profile, 'RecurringRecord':RecurringRecord, 'Ledger': Ledger, 'Record':Record}
