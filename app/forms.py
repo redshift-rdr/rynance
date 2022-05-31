@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, BooleanField, SubmitField, IntegerField, DateField, HiddenField, FloatField, SelectField
 from wtforms.validators import DataRequired, Optional
 
-class AddAccount(FlaskForm):
+class AddProfile(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     submit = SubmitField('Add')
 

@@ -1,28 +1,23 @@
 from flask import render_template, flash, redirect, request, url_for, session, make_response
 from app import app, db
 from app.models import Profile, RecurringRecord, Ledger, Record
-from app.forms import AddItemForm, AddAccount
+from app.forms import AddItemForm, AddProfile
 from sqlalchemy import extract
 from datetime import datetime, timedelta
 
 @app.route('/')
 @app.route('/index')
 def index():
-    return 'hello world'
+    if request.cookies.get('profile_id'):
+        session['profile_id'] = request.cookies.get('profile_id')
 
-"""@app.route('/')
-@app.route('/index')
-def index():
-    if request.cookies.get('account_id'):
-        session['account_id'] = request.cookies.get('account_id')
+    if not 'profile_id' in session:
+        profiles = Profile.query.all()
 
-    if not 'account_id' in session:
-        accounts = Account.query.all()
-
-        if not accounts:
-            return redirect(url_for('addaccount'))
+        if not profiles:
+            return redirect(url_for('addprofile'))
         else:
-            return redirect(url_for('chooseaccount'))
+            return redirect(url_for('chooseprofile'))
 
     # get the ledger for the current month from the db
     thismonth = get_current_month()
@@ -30,12 +25,39 @@ def index():
     # calculate totals
     totals = {}
     if thismonth:
-        totals['disposable'] = sum([t.amount for t in thismonth.entries]),
-        totals['income'] = sum([t.amount if (t.amount > 0) else 0 for t in thismonth.entries]),
-        totals['expenses'] = sum([t.amount if (t.amount < 0) else 0 for t in thismonth.entries])
+        totals['disposable'] = sum([t.amount for t in thismonth.records]),
+        totals['income'] = sum([t.amount if (t.amount > 0) else 0 for t in thismonth.records]),
+        totals['expenses'] = sum([t.amount if (t.amount < 0) else 0 for t in thismonth.records])
 
     return render_template('index.html', title='Home', ledger=thismonth, totals=totals)
 
+@app.route('/addprofile', methods=['GET', 'POST'])
+def addaccount():
+    form = AddProfile()
+
+    if form.validate_on_submit():
+        profile = Profile(name=form.name.data)
+        session['profile_id'] = profile.uuid
+        db.session.add(profile)
+        db.session.commit()
+        return redirect(url_for('index'))
+
+    return render_template('addprofile.html', title='Add profile', form=form)
+    
+@app.route('/chooseprofile', methods=['GET'])
+def chooseaccount():
+    profiles = Profile.query.all()
+    profile_id = request.args.get('profile_id')
+
+    if db.session.query(Profile).filter_by(uuid=profile_id).first():
+        session['profile_id'] = profile_id
+        resp = make_response(redirect(url_for('index')))
+        resp.set_cookie('profile_id', profile_id, expires=datetime.now() + timedelta(days=30))
+        return resp
+
+    return render_template('chooseprofile.html', title='Choose profile', profiles=profiles)
+
+"""
 @app.route('/items', methods=['GET', 'POST'])
 def items():
     items = db.session.query(Item).filter_by(active=True).all()
@@ -114,50 +136,16 @@ def deleteitem():
 
     return redirect(url_for('items'))
 
-@app.route('/addaccount', methods=['GET', 'POST'])
-def addaccount():
-    form = AddAccount()
 
-    if form.validate_on_submit():
-        account = Account(name=form.name.data)
-        session['account_id'] = account.uuid
-        db.session.add(account)
-        db.session.commit()
-        return redirect(url_for('index'))
-
-    return render_template('addaccount.html', title='Add account', form=form)
-    
-@app.route('/chooseaccount', methods=['GET'])
-def chooseaccount():
-    accounts = Account.query.all()
-    account_id = request.args.get('account_id')
-
-    if db.session.query(Account).filter_by(uuid=account_id).first():
-        session['account_id'] = account_id
-        resp = make_response(redirect(url_for('index')))
-        resp.set_cookie('account_id', account_id, expires=datetime.now() + timedelta(days=30))
-        return resp
-
-    return render_template('chooseaccount.html', title='Choose account', accounts=accounts)
-
-def addmonth(account_id : int, month : datetime) -> Ledger:
-    ledger = Ledger(month=month, account=db.session.query(Account).filter_by(uuid=account_id).first())
+"""
+def addmonth(profile_id : int, month : datetime) -> Ledger:
+    ledger = Ledger(month=month, account=db.session.query(Profile).filter_by(uuid=profile_id).first())
     db.session.add(ledger)
 
-    recurring = db.session.query(Item).filter(Item.recurring == True).filter_by(type=1).all()
+    recurring = db.session.query(RecurringRecord).all()
     for item in recurring:
-        entry = LedgerEntry(item=item, ledger=ledger)
+        entry = Record(ledger=ledger, name=item.name, description=item.description, amount=item.amount)
         db.session.add(entry)
-
-    m, y = (month.month, month.year)
-    irregulars = db.session.query(Item).filter(extract('month', Item.month)==m).filter_by(type=2).all()
-    for irrItem in irregulars:
-        entry = LedgerEntry(item=irrItem, ledger=ledger)
-        db.session.add(entry)
-
-        if irrItem.period:
-            irrItem._update_month()
-            db.session.add(irrItem)
 
     db.session.commit()
     return ledger
@@ -168,10 +156,12 @@ def get_current_month() -> Ledger:
 def get_month(month : datetime) -> Ledger:
     m, y = (month.month, month.year)
 
+    # TODO: need to get month only for current profile
+    # Also look into Profile.ledgers to get list of ledgers for profile
+
     ledger = db.session.query(Ledger).filter(extract('year', Ledger.month)==y).filter(extract('month', Ledger.month)==m).first()
 
     if not ledger:
         ledger = addmonth(session['account_id'], month)
 
     return ledger
-"""
