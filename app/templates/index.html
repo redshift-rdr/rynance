@@ -12,8 +12,8 @@
 
     <table class="table table-striped">
         <tr><th>Name</th><th>Amount</th><th>Day</th></tr>
-        {% for transaction in ledger.entries %}
-            <tr><td><a title="{{ transaction.description }}">{{ transaction.name }}</a></td><td>{{ transaction.amount }}</td><td>{{ transaction.item.repeat_dom }}</td></tr>
+        {% for record in ledger.records %}
+            <tr><td><a title="{{ record.description }}">{{ record.name }}</a></td><td>{{ record.amount }}</td><td></td></tr>
         {% endfor %}
     </table>
 </div>

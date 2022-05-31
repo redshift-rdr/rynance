@@ -32,7 +32,7 @@ def index():
     return render_template('index.html', title='Home', ledger=thismonth, totals=totals)
 
 @app.route('/addprofile', methods=['GET', 'POST'])
-def addaccount():
+def addprofile():
     form = AddProfile()
 
     if form.validate_on_submit():
@@ -45,7 +45,7 @@ def addaccount():
     return render_template('addprofile.html', title='Add profile', form=form)
     
 @app.route('/chooseprofile', methods=['GET'])
-def chooseaccount():
+def chooseprofile():
     profiles = Profile.query.all()
     profile_id = request.args.get('profile_id')
 
@@ -138,8 +138,8 @@ def deleteitem():
 
 
 """
-def addmonth(profile_id : int, month : datetime) -> Ledger:
-    ledger = Ledger(month=month, account=db.session.query(Profile).filter_by(uuid=profile_id).first())
+def addmonth(profile_id : str, month : datetime) -> Ledger:
+    ledger = Ledger(month=month, profile=db.session.query(Profile).filter_by(uuid=profile_id).first())
     db.session.add(ledger)
 
     recurring = db.session.query(RecurringRecord).all()
@@ -151,15 +151,16 @@ def addmonth(profile_id : int, month : datetime) -> Ledger:
     return ledger
 
 def get_current_month() -> Ledger:
-    return get_month(datetime.utcnow())
+    if not 'profile_id' in session:
+        return []
 
-def get_month(month : datetime) -> Ledger:
+    return get_month(session['profile_id'], datetime.utcnow())
+
+def get_month(profile_id : str, month : datetime) -> Ledger:
     m, y = (month.month, month.year)
 
-    # TODO: need to get month only for current profile
-    # Also look into Profile.ledgers to get list of ledgers for profile
-
-    ledger = db.session.query(Ledger).filter(extract('year', Ledger.month)==y).filter(extract('month', Ledger.month)==m).first()
+    profile = db.session.query(Profile).filter_by(uuid=profile_id).first()
+    ledger = db.session.query(Ledger).filter_by(profile=profile).filter(extract('year', Ledger.month)==y).filter(extract('month', Ledger.month)==m).first()
 
     if not ledger:
         ledger = addmonth(session['account_id'], month)
