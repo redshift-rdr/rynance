@@ -38,6 +38,7 @@ class Record(db.Model):
     description = db.Column(db.String(512))
     uuid = db.Column(db.String(36), index=True, unique=True, default=generate_uuid)
     amount = db.Column(db.Integer)
+    recurring_dom = db.Column(db.Integer, default=1)
 
     ledger_id = db.Column(db.Integer, db.ForeignKey('ledger.id'))
     ledger = db.relationship('Ledger', back_populates='records')

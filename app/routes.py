@@ -25,8 +25,8 @@ def index():
     # calculate totals
     totals = {}
     if thismonth:
-        totals['disposable'] = sum([t.amount for t in thismonth.records]),
-        totals['income'] = sum([t.amount if (t.amount > 0) else 0 for t in thismonth.records]),
+        totals['disposable'] = sum([t.amount for t in thismonth.records])
+        totals['income'] = sum([t.amount if (t.amount > 0) else 0 for t in thismonth.records])
         totals['expenses'] = sum([t.amount if (t.amount < 0) else 0 for t in thismonth.records])
 
     return render_template('index.html', title='Home', ledger=thismonth, totals=totals)
@@ -144,7 +144,7 @@ def addmonth(profile_id : str, month : datetime) -> Ledger:
 
     recurring = db.session.query(RecurringRecord).all()
     for item in recurring:
-        entry = Record(ledger=ledger, name=item.name, description=item.description, amount=item.amount)
+        entry = Record(ledger=ledger, name=item.name, description=item.description, amount=item.amount, recurring_dom=item.recurring_dom)
         db.session.add(entry)
 
     db.session.commit()
@@ -163,6 +163,6 @@ def get_month(profile_id : str, month : datetime) -> Ledger:
     ledger = db.session.query(Ledger).filter_by(profile=profile).filter(extract('year', Ledger.month)==y).filter(extract('month', Ledger.month)==m).first()
 
     if not ledger:
-        ledger = addmonth(session['account_id'], month)
+        ledger = addmonth(session['profile_id'], month)
 
     return ledger
