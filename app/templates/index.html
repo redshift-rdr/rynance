@@ -4,16 +4,46 @@
 
 <div class="container">
     
-    <ul class="list-group list-group-horizontal mb-2">
-        <li class="list-group-item text-success">disposable income: {{ totals['disposable'] }}</li>
-        <li class="list-group-item text-success">income: {{ totals['income'] }}</li>
-        <li class="list-group-item text-danger">expenses: {{ totals['expenses'] }}</li>
-    </ul>
+    <div id="date-header" class="text-center">
+        <h1>{{ ledger_info.month.strftime('%B %Y') }}</h1>
+    </div>
 
-    <table class="table table-striped">
+    <div class="d-flex">
+        <ul class="list-group list-group-horizontal mb-1 mx-auto">
+            <li class="list-group-item bg-success text-light">disposable income: {{ ledger_info.disposable_income }}</li>
+            <li class="list-group-item bg-warning text-muted">total expenses: {{ ledger_info.total_expenses }}</li>
+        </ul>
+    </div>
+
+    <div class="d-flex mb-2">
+        <ul class="list-group list-group-horizontal mb-2 mx-auto">
+            <li class="list-group-item bg-secondary text-light">current balance: {{ ledger_info.bank_balance }}</li>
+        </ul>
+    </div>
+
+    <table class="table">
+        <tr><td class="table-success" colspan="3">Money in</td></tr>
         <tr><th>Name</th><th>Amount</th><th>Day</th></tr>
         {% for record in ledger.records %}
-            <tr><td><a title="{{ record.description }}">{{ record.name }}</a></td><td>{{ record.amount }}</td><td></td></tr>
+            {% if (record.amount > 0) %}
+                <tr>
+                    <td><a title="{{ record.description }}" href="{{ url_for('editrecord', record_id=record.uuid) }}">{{ record.name }}</a></td>
+                    <td>{{ record.amount }}</td>
+                    <td>{{ record.recurring_dom }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+
+        <tr><td></td></tr>
+        <tr><td class="table-warning" colspan="3">Money out</td></tr>
+        {% for record in ledger.records %}
+            {% if (record.amount < 0) %}
+                <tr {% if (record.recurring_dom > ledger_info.today.day) %} class="alert-secondary" {% endif %}</tr>
+                    <td><a title="{{ record.description }}" href="{{ url_for('editrecord', record_id=record.uuid) }}">{{ record.name }}</a></td>
+                    <td>{{ record.amount * -1 }}</td>
+                    <td>{{ record.recurring_dom }}</td>
+                </tr>
+            {% endif %}
         {% endfor %}
     </table>
 </div>

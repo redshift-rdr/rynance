@@ -64,7 +64,7 @@ class Item(db.Model):
     uuid = db.Column(db.String(36), index=True, unique=True, default=generate_uuid)
     amount = db.Column(db.Integer)
     recurring = db.Column(db.Boolean, default=False)
-    repeat_dom = db.Column(db.Integer)
+    recurring_dom = db.Column(db.Integer)
     name = db.Column(db.String(64), index=True)
     description = db.Column(db.String(512))
     account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
