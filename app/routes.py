@@ -124,7 +124,8 @@ def addrecord():
                             description = form.description.data,
                             amount = amount,
                             recurring_dom = form.recurring_dom.data,
-                            ledger = thismonth)
+                            ledger = thismonth,
+                            payment_method=form.payment_method.data)
             db.session.add(record)
             
         db.session.commit()
@@ -152,6 +153,7 @@ def editrecurring():
             item.description = form.description.data
             item.amount = amount
             item.recurring_dom = form.recurring_dom.data
+            item.payment_method = form.payment_method.data
 
             db.session.add(item)
             db.session.commit()
@@ -224,7 +226,7 @@ def addmonth(profile_id : str, month : datetime) -> Ledger:
 
     recurring = db.session.query(RecurringRecord).all()
     for item in recurring:
-        entry = Record(ledger=ledger, name=item.name, description=item.description, amount=item.amount, recurring_dom=item.recurring_dom)
+        entry = Record(ledger=ledger, name=item.name, description=item.description, amount=item.amount, recurring_dom=item.recurring_dom, payment_method=item.payment_method)
         db.session.add(entry)
 
     db.session.commit()

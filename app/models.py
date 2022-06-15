@@ -25,6 +25,7 @@ class RecurringRecord(db.Model):
     name = db.Column(db.String(64), index=True)
     description = db.Column(db.String(512))
     recurring_dom = db.Column(db.Integer, default=1)
+    payment_method = db.Column(db.String(12), default='manual')
 
     profile_id = db.Column(db.Integer, db.ForeignKey('profile.id'))
     profile = db.relationship('Profile', back_populates='recurring')
@@ -39,6 +40,8 @@ class Record(db.Model):
     uuid = db.Column(db.String(36), index=True, unique=True, default=generate_uuid)
     amount = db.Column(db.Integer)
     recurring_dom = db.Column(db.Integer, default=1)
+    payment_method = db.Column(db.String(12), default='manual')
+    paid = db.Column(db.Boolean, default=False)
 
     ledger_id = db.Column(db.Integer, db.ForeignKey('ledger.id'))
     ledger = db.relationship('Ledger', back_populates='records')

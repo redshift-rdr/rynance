@@ -14,6 +14,7 @@ class AddRecurringRecordForm(FlaskForm):
     amount = FloatField('Amount', validators=[DataRequired()])
     recurring_dom = IntegerField('Repeat DOM')
     addthismonth = BooleanField('Add to this month')
+    payment_method = SelectField('Payment Method', choices=[('Automatic', 'automatic'), ('Manual', 'Manual')])
     submit = SubmitField('Submit')
 
 class AddRecordForm(FlaskForm):
@@ -25,4 +26,6 @@ class AddRecordForm(FlaskForm):
     description = StringField('Description')
     amount = FloatField('Amount', validators=[DataRequired()])
     recurring_dom = IntegerField('Repeat DOM')
+    payment_method = SelectField('Payment Method', choices=[('automatic', 'Automatic'), ('manual', 'Manual')])
+    paid = BooleanField('Paid')
     submit = SubmitField('Submit')
