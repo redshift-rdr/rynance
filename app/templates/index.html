@@ -3,65 +3,77 @@
 {% block content %}
 
 <div class="container">
-    
-    <div id="date-header" class="text-center">
-        <h1>{{ ledger_info.month.strftime('%B %Y') }}</h1>
-    </div>
+    {% if not ledger %}
+        <p>Our records dont go back that far!</p>
+    {% else %}
+        <div id="date-header" class="text-center">
+            <h1>
+                <a class="link-secondary" 
+                   href="{{ url_for('index', month=ledger_info.prev_month_str) }}">
+                   <i class="bi bi-chevron-left"></i></a>
+                {{ ledger_info.month.strftime('%B %Y') }}
+                <a class="link-secondary" 
+                   href="{{ url_for('index', month=ledger_info.next_month_str) }}">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </h1>
+        </div>
 
-    <div class="d-flex">
-        <ul class="list-group list-group-horizontal mb-1 mx-auto">
-            <li class="list-group-item bg-success text-light">disposable income: {{ "£{:,.2f}".format(ledger_info.disposable_income) }}</li>
-            <li class="list-group-item bg-warning text-muted">total expenses: {{ "£{:,.2f}".format(ledger_info.total_expenses) }}</li>
-        </ul>
-    </div>
+        <div class="d-flex">
+            <ul class="list-group list-group-horizontal mb-1 mx-auto">
+                <li class="list-group-item bg-success text-light">disposable income: {{ "£{:,.2f}".format(ledger_info.disposable_income) }}</li>
+                <li class="list-group-item bg-warning text-muted">total expenses: {{ "£{:,.2f}".format(ledger_info.total_expenses) }}</li>
+            </ul>
+        </div>
 
-    <div class="d-flex mb-2">
-        <ul class="list-group list-group-horizontal mb-1 mx-auto">
-            <li class="list-group-item bg-secondary text-light">current balance: {{ "£{:,.2f}".format(ledger_info.bank_balance) }}</li>
-        </ul>
-    </div>
+        <div class="d-flex mb-2">
+            <ul class="list-group list-group-horizontal mb-1 mx-auto">
+                <li class="list-group-item bg-secondary text-light">current balance: {{ "£{:,.2f}".format(ledger_info.bank_balance) }}</li>
+            </ul>
+        </div>
 
-    <table class="table">
-        <tr><td class="table-success" colspan="3">Money in</td></tr>
-        <tr><th>Name</th><th>Amount</th><th>Day</th></tr>
-        {% for record in ledger.records %}
-            {% if (record.amount > 0) %}
-                <tr>
-                    <td>
-                        <i class="bi bi-bank text-secondary"></i>
-                        <a class="link-dark" title="{{ record.description }}" href="{{ url_for('editrecord', record_id=record.uuid) }}">
-                            {{ record.name }}
-                        </a>
-                    </td>
-                    <td>{{ "£{:,.2f}".format(record.amount) }}</td>
-                    <td>{{ record.recurring_dom }}</td>
-                </tr>
-            {% endif %}
-        {% endfor %}
+        <table class="table">
+            <tr><td class="table-success" colspan="3">Money in</td></tr>
+            <tr><th>Name</th><th>Amount</th><th>Day</th></tr>
+            {% for record in ledger.records %}
+                {% if (record.amount > 0) %}
+                    <tr>
+                        <td>
+                            <i class="bi bi-bank text-secondary me-2"></i>
+                            <a class="link-dark" title="{{ record.description }}" href="{{ url_for('editrecord', record_id=record.uuid) }}">
+                                {{ record.name }}
+                            </a>
+                        </td>
+                        <td>{{ "£{:,.2f}".format(record.amount) }}</td>
+                        <td>{{ record.recurring_dom }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
 
-        <tr><td></td></tr>
-        <tr><td class="table-warning" colspan="3">Money out</td></tr>
-        {% for record in ledger.records %}
-            {% if (record.amount < 0) %}
-                <tr {% if (record.recurring_dom > ledger_info.today.day) %} class="alert-secondary" {% endif %}</tr>
-                    <td>
-                        {% if record.payment_method == 'automatic' %}
-                            <i class="bi bi-bank text-secondary"></i>
-                        {% elif record.payment_method == 'manual' %}
-                            <i class="bi bi-cash
-                            {% if (record.recurring_dom < ledger_info.today.day) and (record.paid == False) %}text-danger{% endif %}
-                            "></i>
-                        {% endif %}
-                        <a class="link-dark" title="{{ record.description }}" href="{{ url_for('editrecord', record_id=record.uuid) }}">
-                            {{ record.name }}
-                        </a>
-                    </td>
-                    <td>{{ "£{:,.2f}".format(record.amount * -1) }}</td>
-                    <td>{{ record.recurring_dom }}</td>
-                </tr>
-            {% endif %}
-        {% endfor %}
-    </table>
+            <tr><td></td></tr>
+            <tr><td class="table-warning" colspan="3">Money out</td></tr>
+            {% for record in ledger.records %}
+                {% if (record.amount < 0) %}
+                    <tr {% if (record.recurring_dom > ledger_info.today.day) %} class="alert-secondary" {% endif %}</tr>
+                        <td>
+                            {% if record.payment_method == 'automatic' %}
+                                <i class="bi bi-bank text-secondary me-2"></i>
+                            {% elif record.payment_method == 'manual' %}
+                                <i class="bi bi-cash me-2
+                                {% if (record.recurring_dom < ledger_info.today.day) and (record.paid == False) %}text-danger{% elif record.paid == True %}text-success{% endif %}
+                                "></i>
+                            {% endif %}
+                            <a class="link-dark" title="{{ record.description }}" href="{{ url_for('editrecord', record_id=record.uuid) }}">
+                                {{ record.name }}
+                            </a>
+                        </td>
+                        <td>{{ "£{:,.2f}".format(record.amount * -1) }}</td>
+                        <td>{{ record.recurring_dom }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </table>
+    {% endif %}
 </div>
   
 

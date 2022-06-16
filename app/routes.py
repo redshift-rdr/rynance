@@ -4,12 +4,17 @@ from app.models import Profile, RecurringRecord, Ledger, Record
 from app.forms import AddRecurringRecordForm, AddRecordForm
 from sqlalchemy import extract
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 class LedgerInfo:
     def __init__(self, ledger_model):
         self.ledger = ledger_model
 
         self.month = self.ledger.month
+        self.prev_month = self.month - relativedelta(months=1)
+        self.prev_month_str = f'{self.prev_month.month}-{self.prev_month.year}'
+        self.next_month = self.month + relativedelta(months=1)
+        self.next_month_str = f'{self.next_month.month}-{self.next_month.year}'
         self.today = datetime.utcnow()
         self.calc_totals()
 
@@ -54,8 +59,18 @@ def index():
         else:
             return redirect(url_for('chooseprofile'))
 
-    # get the ledger for the current month from the db
-    thismonth = get_current_month()
+    month_select = request.args.get('month')
+    if month_select:
+        if '-' in month_select: 
+            m,y = month_select.split('-')
+            date_select = datetime(year=int(y), month=int(m), day=1)
+            print(date_select)
+            thismonth = get_month(session['profile_id'], date_select)
+        else:
+            thismonth = get_current_month()
+    else:
+        # get the ledger for the current month from the db
+        thismonth = get_current_month()
 
     # calculate totals
     totals = {}
@@ -65,6 +80,8 @@ def index():
         #totals['income'] = sum([t.amount if (t.amount > 0) else 0 for t in thismonth.records])
         #totals['expenses'] = sum([t.amount if (t.amount < 0) else 0 for t in thismonth.records])
         #totals['todate'] = sum([t.amount if ((t.recurring_dom <= today_dom) and (t.amount > 0)) else 0 for t in thismonth.records]) + sum([t.amount if ((t.recurring_dom <= today_dom) and (t.amount < 0)) else 0 for t in thismonth.records])
+    else:
+        ledger_info = None
 
     return render_template('index.html', title='Home', ledger=thismonth, ledger_info=ledger_info)
 
@@ -179,6 +196,7 @@ def editrecord():
             record.description = form.description.data
             record.amount = amount
             record.recurring_dom = form.recurring_dom.data
+            record.paid = form.paid.data
 
             db.session.add(record)
             db.session.commit()
@@ -236,15 +254,15 @@ def get_current_month() -> Ledger:
     if not 'profile_id' in session:
         return []
 
-    return get_month(session['profile_id'], datetime.utcnow())
+    return get_month(session['profile_id'], datetime.utcnow(), create=True)
 
-def get_month(profile_id : str, month : datetime) -> Ledger:
+def get_month(profile_id : str, month : datetime, create : bool = False) -> Ledger:
     m, y = (month.month, month.year)
 
     profile = db.session.query(Profile).filter_by(uuid=profile_id).first()
     ledger = db.session.query(Ledger).filter_by(profile=profile).filter(extract('year', Ledger.month)==y).filter(extract('month', Ledger.month)==m).first()
 
-    if not ledger:
+    if not ledger and create:
         ledger = addmonth(session['profile_id'], month)
 
     return ledger
