@@ -3,9 +3,7 @@
 {% block content %}
 
 <div class="container">
-    <h5>rynance - edit record</h5>
-
-    <a href="{{ url_for('index') }}">< Back</a>
+    <h5 class="text-center">Edit Record <i class="bi bi-pencil-square"></i></h5>
 
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
@@ -31,7 +29,7 @@
             {% endfor %}
         </p>
         <p>
-            {{ form.amount.label(class_='form-label') }} - <span class="text-muted">Make it negative for expenses</span><br>
+            {{ form.amount.label(class_='form-label') }}<br>
             {{ form.amount(class_='form-control') }}
             {% for error in form.amount.errors %}
                 <span style="color: red;">[{{ error }}]</span>
@@ -46,13 +44,17 @@
         </p>
         <p>
             {{ form.paid.label(class_='form-label') }}<br>
-            {{ form.paid(class_='') }}
+            {{ form.paid(class_='form-check-input big-check') }}
             {% for error in form.paid.errors %}
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
 
-        <p>{{ form.submit(class_='btn btn-primary') }} <a class="btn btn-danger" href="{{ url_for('deleterecord', record_id=form.uuid.data) }}">Delete</a></p>
+        <p>
+            {{ form.submit(class_='btn btn-primary') }} 
+            <a class="btn btn-danger" href="{{ url_for('deleterecord', record_id=form.uuid.data) }}">Delete</a>
+            <a class="btn btn-warning" href="{{ url_for('index') }}">Cancel</a>
+        </p>
     </form>
 </div>
   

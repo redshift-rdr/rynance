@@ -20,15 +20,10 @@
         </div>
 
         <div class="d-flex">
-            <ul class="list-group list-group-horizontal mb-1 mx-auto">
-                <li class="list-group-item bg-success text-light">disposable income: {{ "£{:,.2f}".format(ledger_info.disposable_income) }}</li>
-                <li class="list-group-item bg-warning text-muted">total expenses: {{ "£{:,.2f}".format(ledger_info.total_expenses) }}</li>
-            </ul>
-        </div>
-
-        <div class="d-flex mb-2">
-            <ul class="list-group list-group-horizontal mb-1 mx-auto">
-                <li class="list-group-item bg-secondary text-light">current balance: {{ "£{:,.2f}".format(ledger_info.bank_balance) }}</li>
+            <ul class="list-group list-group-horizontal mb-2 mx-auto">
+                <li class="list-group-item bg-success text-light"><i class="bi bi-cash-stack me-2"></i> {{ "£{:,.2f}".format(ledger_info.disposable_income) }}</li>
+                <li class="list-group-item bg-warning text-muted"><i class="bi bi-arrow-bar-right me-1"></i> {{ "£{:,.2f}".format(ledger_info.total_expenses) }}</li>
+                <li class="list-group-item bg-secondary text-light"><i class="bi bi-bank me-2"></i> {{ "£{:,.2f}".format(ledger_info.bank_balance) }}</li>
             </ul>
         </div>
 

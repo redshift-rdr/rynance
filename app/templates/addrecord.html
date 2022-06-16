@@ -3,9 +3,11 @@
 {% block content %}
 
 <div class="container">
-    <h5 class="mb-2">add record</h5>
+    <h5 class="mb-2 text-center">
+        Add Record <i class="bi bi-file-plus"></i>
+    </h5>
 
-    <form action="" method="post" novalidate>
+    <form method="post" novalidate>
         {{ form.hidden_tag() }}
 
 
@@ -64,12 +66,12 @@
                 {% endfor %}
             </div>
         </div>
-        <div class="row mb-2">
+        <div class="row mb-3">
             <div class="col-4">
-                {{ form.recurring.label(class_='form-label') }}
+                {{ form.recurring.label(class_='from-label') }}
             </div>
             <div class="col-8">
-                {{ form.recurring(class_='') }}
+                {{ form.recurring(class_='form-check-input big-check') }}
                 {% for error in form.recurring.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
@@ -91,7 +93,7 @@
                 {{ form.addthismonth.label(class_='form-label') }}
             </div>
             <div class="col-8">
-                {{ form.addthismonth(class_='') }}
+                {{ form.addthismonth(class_='form-check-input big-check') }}
                 {% for error in form.addthismonth.errors %}
                     <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
@@ -99,7 +101,7 @@
         </div>
         
         <div class="row mb-2 ms-1 me-1">
-            {{ form.submit(class_='btn btn-primary') }}
+            {{ form.submit(class_='btn btn-success') }}
         </div>
     </form>
 </div>
