@@ -3,15 +3,26 @@
 {% block content %}
 
 <div class="container">
-    <h5>rynance</h5>
+    
 
-    <form action="" method="post" novalidate>
-        <ul>
-        {% for profile in profiles %}
-            <li><a href="{{ url_for('chooseprofile') }}?profile_id={{ profile.uuid }}">{{ profile.name }}</a></li>
-        {% endfor %}
-        </ul>
-    </form>
+    <div class="col-sm-6 ms-auto me-auto">
+        <h2>Choose profile</h2>
+        <div class="card text-dark bg-info">
+            <ul class="list-group list-group-flush">
+                {% for profile in profiles %}
+                    <a class="link-dark" style="text-decoration: none;" href="{{ url_for('chooseprofile') }}?profile_id={{ profile.uuid }}">
+                        <li class="list-group-item">
+                            <h2><i class="bi bi-person-circle"></i> {{ profile.name }}</h2>
+                        </li>
+                    </a>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <a class="link-light btn btn-info mt-5" style="text-decoration: none;" href="{{ url_for('addprofile') }}"><i class="bi bi-person-plus"></i> Add profile</a>
+    </div>
+
+    
 
 </div>
   

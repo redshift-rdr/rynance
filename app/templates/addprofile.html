@@ -3,18 +3,19 @@
 {% block content %}
 
 <div class="container">
-    <h5>rynance</h5>
+    <div class="col-sm-6 ms-auto me-auto">
+        <h5>add profile</h5>
 
-    <form action="" method="post" novalidate>
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.name.label }}<br>
-            {{ form.name(size=32) }}
-        </p>
-        <p>
-            {{ form.submit() }}
-        </p>
-    </form>
+        <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="row mt-3">
+                <div class="col-sm-3">{{ form.name.label(class_='form-label') }}</div>
+                <div class="col-sm-6">{{ form.name(class_='form-control') }}</div>
+                <div class="col-sm-1">{{ form.submit(class_='btn btn-primary') }}</div>
+            </div>
+        </form>
+    </div>
 </div>
   
 

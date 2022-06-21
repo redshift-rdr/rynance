@@ -4,7 +4,8 @@
 
 <div class="container">
     {% if not ledger %}
-        <p>Our records dont go back that far!</p>
+        <p>We dont have any records for that month!</p>
+        <a class="btn btn-primary" href="{{ url_for('index') }}">Go back</a>
     {% else %}
         <div id="date-header" class="text-center">
             <h1>

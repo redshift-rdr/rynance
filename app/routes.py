@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, request, url_for, session, make_response
 from app import app, db
 from app.models import Profile, RecurringRecord, Ledger, Record
-from app.forms import AddRecurringRecordForm, AddRecordForm
+from app.forms import AddRecurringRecordForm, AddRecordForm, AddProfile
 from sqlalchemy import extract
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -153,7 +153,8 @@ def addrecord():
 
 @app.route('/recurring', methods=['GET', 'POST'])
 def recurring_records():
-    recurring_records = db.session.query(RecurringRecord).all()
+    profile_id = session['profile_id']
+    recurring_records = db.session.query(RecurringRecord).filter_by(uuid=profile_id).all()
     return render_template('items.html', recurring_records=recurring_records)
 
 @app.route('/editrecurring', methods=['GET', 'POST'])
@@ -242,7 +243,7 @@ def addmonth(profile_id : str, month : datetime) -> Ledger:
     ledger = Ledger(month=month, profile=db.session.query(Profile).filter_by(uuid=profile_id).first())
     db.session.add(ledger)
 
-    recurring = db.session.query(RecurringRecord).all()
+    recurring = db.session.query(RecurringRecord).filter_by(uuid=profile_id).all()
     for item in recurring:
         entry = Record(ledger=ledger, name=item.name, description=item.description, amount=item.amount, recurring_dom=item.recurring_dom, payment_method=item.payment_method)
         db.session.add(entry)

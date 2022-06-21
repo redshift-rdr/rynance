@@ -3,9 +3,11 @@
 {% block content %}
 
 <div class="container">
-    <h5>rynance - Items</h5>
+    <h5>recurring records</h5>
 
-    <table class="table table-striped">
+    <a class="btn btn-success" href="{{ url_for('addrecord') }}"><i class="bi bi-file-earmark-plus"></i> Add Recurring Record</a>
+    
+    <table class="table table-striped mt-2">
         <tr><th>Name</th><th>Description</th><th>Amount</th><th>DOM</th></tr>
         {% for rrecord in recurring_records %}
             <tr>
@@ -16,7 +18,7 @@
             </tr>
         {% endfor %}
     </table>
-    <a class="btn btn-success" href="{{ url_for('addrecord') }}">Add Recurring Record</a>
+    
 </div>
   
 

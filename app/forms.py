@@ -3,7 +3,7 @@ from wtforms import StringField, BooleanField, SubmitField, IntegerField, DateFi
 from wtforms.validators import DataRequired, Optional
 
 class AddProfile(FlaskForm):
-    name = StringField('Name', validators=[DataRequired()])
+    name = StringField('Profile Name', validators=[DataRequired()])
     submit = SubmitField('Add')
 
 class AddRecurringRecordForm(FlaskForm):
