@@ -154,7 +154,8 @@ def addrecord():
 @app.route('/recurring', methods=['GET', 'POST'])
 def recurring_records():
     profile_id = session['profile_id']
-    recurring_records = db.session.query(RecurringRecord).filter_by(uuid=profile_id).all()
+    profile = db.session.query(Profile).filter_by(uuid=profile_id).first()
+    recurring_records = db.session.query(RecurringRecord).filter_by(profile_id=profile.id).all()
     return render_template('items.html', recurring_records=recurring_records)
 
 @app.route('/editrecurring', methods=['GET', 'POST'])
