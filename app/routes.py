@@ -41,7 +41,7 @@ class LedgerInfo:
 
             # bank balance will be income to date - expenses to date
             #   the figure is meant to reflect the amount of money in the bank account
-            if record.recurring_dom < self.today.day:
+            if record.recurring_dom <= self.today.day:
                 self.bank_balance += record.amount
             
 
@@ -64,7 +64,6 @@ def index():
         if '-' in month_select: 
             m,y = month_select.split('-')
             date_select = datetime(year=int(y), month=int(m), day=1)
-            print(date_select)
             thismonth = get_month(session['profile_id'], date_select)
         else:
             thismonth = get_current_month()
@@ -242,9 +241,12 @@ def deleterecord():
 
 def addmonth(profile_id : str, month : datetime) -> Ledger:
     ledger = Ledger(month=month, profile=db.session.query(Profile).filter_by(uuid=profile_id).first())
+    
     db.session.add(ledger)
 
-    recurring = db.session.query(RecurringRecord).filter_by(uuid=profile_id).all()
+    profile = db.session.query(Profile).filter_by(uuid=profile_id).first()
+    recurring = db.session.query(RecurringRecord).filter_by(profile=profile).all()
+    
     for item in recurring:
         entry = Record(ledger=ledger, name=item.name, description=item.description, amount=item.amount, recurring_dom=item.recurring_dom, payment_method=item.payment_method)
         db.session.add(entry)
@@ -260,11 +262,11 @@ def get_current_month() -> Ledger:
 
 def get_month(profile_id : str, month : datetime, create : bool = False) -> Ledger:
     m, y = (month.month, month.year)
-
     profile = db.session.query(Profile).filter_by(uuid=profile_id).first()
     ledger = db.session.query(Ledger).filter_by(profile=profile).filter(extract('year', Ledger.month)==y).filter(extract('month', Ledger.month)==m).first()
-
+    
     if not ledger and create:
+        
         ledger = addmonth(session['profile_id'], month)
 
     return ledger
