@@ -31,7 +31,7 @@
         <table class="table">
             <tr><td class="table-success" colspan="3">Money in</td></tr>
             <tr><th>Name</th><th>Amount</th><th>Day</th></tr>
-            {% for record in ledger.records %}
+            {% for record in ledger.records|sort(attribute='recurring_dom') %}
                 {% if (record.amount > 0) %}
                     <tr>
                         <td>
