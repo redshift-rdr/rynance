@@ -48,7 +48,7 @@
 
             <tr><td></td></tr>
             <tr><td class="table-warning" colspan="3">Money out</td></tr>
-            {% for record in ledger.records %}
+            {% for record in ledger.records|sort(attribute='recurring_dom') %}
                 {% if (record.amount < 0) %}
                     <tr {% if (record.recurring_dom > ledger_info.today.day) %} class="alert-secondary" {% endif %}</tr>
                         <td>
